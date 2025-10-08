@@ -4,7 +4,7 @@
  * Plugin URI: https://makase.com
  * Description: Adds Makase quote request widget to your site
  * Version: 1.0
- * Author: Adam Gent
+ * Author: Makase
  *
  * License: GPL2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -45,6 +45,13 @@ function makase_settings_page() {
                         <p class="description">Enter your Makase API ID</p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">Enable Popup Widget</th>
+                    <td>
+                        <input type="checkbox" name="makase_enable_popup" value="1" <?php checked(get_option('makase_enable_popup', true)); ?> />
+                        <p class="description">Show floating popup widget on all pages</p>
+                    </td>
+                </tr>
             </table>
             <?php submit_button(); ?>
         </form>
@@ -56,17 +63,32 @@ function makase_settings_page() {
 add_action('admin_init', 'makase_settings_init');
 function makase_settings_init() {
     register_setting('makase_settings', 'makase_api_id');
+    register_setting('makase_settings', 'makase_enable_popup');
 }
 
 // Add the script to frontend
 add_action('wp_footer', 'makase_add_script');
 function makase_add_script() {
     $api_id = get_option('makase_api_id');
+    $enable_popup = get_option('makase_enable_popup', true);
     
-    // Only add script if API ID is set
-    if (!empty($api_id)) {
+    // Only add script if API ID is set AND popup is enabled
+    if (!empty($api_id) && $enable_popup) {
         ?>
         <script src="https://api.makase.com/widget/phone-form?floating=true&id=<?php echo esc_attr($api_id); ?>" data-rocket-defer="" defer=""></script>
         <?php
     }
+}
+
+// Shortcode support for inline placement
+add_shortcode('makase_quote', 'makase_shortcode_function');
+function makase_shortcode_function() {
+    $api_id = get_option('makase_api_id');
+    if (!empty($api_id)) {
+        // Create the container div and load the script
+        $output = '<div class="makase-form" style="width: 100%; max-width: none;"></div>';
+        $output .= '<script src="https://api.makase.com/widget/phone-form?id=' . esc_attr($api_id) . '" defer></script>';
+        return $output;
+    }
+    return '';
 }
