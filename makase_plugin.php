@@ -3,7 +3,7 @@
  * Plugin Name: Makase Quote Widget
  * Plugin URI: https://makase.com
  * Description: Adds Makase quote request widget to your site
- * Version: 1.0
+ * Version: 1.0.0
  * Author: Makase
  *
  * License: GPL2 or later
@@ -39,19 +39,26 @@ function makase_settings_page() {
             ?>
             <table class="form-table">
                 <tr>
-                    <th scope="row">API ID</th>
+                    <th scope="row">MAKASE ID</th>
                     <td>
                         <input type="text" name="makase_api_id" value="<?php echo esc_attr(get_option('makase_api_id')); ?>" class="regular-text" />
-                        <p class="description">Enter your Makase API ID</p>
+                        <p class="description">Found in the widget tab on the Vendor Dashboard</p>
+
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">Enable Popup Widget</th>
+                    <th scope="row">Enable Floating Widget</th>
                     <td>
                         <input type="checkbox" name="makase_enable_popup" value="1" <?php checked(get_option('makase_enable_popup', true)); ?> />
-                        <p class="description">Show floating popup widget on all pages</p>
+                        <p class="description">Show floating widget on all pages</p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">Vendor Dashboard</th>
+                    <td>
+                        <a href="http://pro.makase.com/widget?vendor_id=<?php echo esc_attr(get_option('makase_api_id')); ?>" target="_blank" class="button button-secondary">Makase Vendor Dashboard</a>
+                    </td>
+                    </tr>
             </table>
             <?php submit_button(); ?>
         </form>
@@ -75,7 +82,7 @@ function makase_add_script() {
     // Only add script if API ID is set AND popup is enabled
     if (!empty($api_id) && $enable_popup) {
         ?>
-        <script src="https://api.makase.com/widget/phone-form?floating=true&id=<?php echo esc_attr($api_id); ?>" data-rocket-defer="" defer=""></script>
+        <script src="https://api.makase.com/widget/phone-form?floating=true&no_track=true&id=<?php echo esc_attr($api_id); ?>" data-rocket-defer="" defer=""></script>
         <?php
     }
 }
@@ -86,8 +93,8 @@ function makase_shortcode_function() {
     $api_id = get_option('makase_api_id');
     if (!empty($api_id)) {
         // Create the container div and load the script
-        $output = '<div class="makase-form" style="width: 100%; max-width: none;"></div>';
-        $output .= '<script src="https://api.makase.com/widget/phone-form?id=' . esc_attr($api_id) . '" defer></script>';
+        $output = '<div class="makase-form" style="width: 350px; max-width: none; "></div>';
+        $output .= '<script src="https://api.makase.com/widget/phone-form?no_track=true&id=' . esc_attr($api_id) . '" defer></script>';
         return $output;
     }
     return '';
